@@ -14,10 +14,14 @@ def checkRange(seedPair, mapping):
     if(start > end): return [], []
     offset = mapping.beginMapping - mapping.begin
     result = (start + offset, end - start + 1)
-    if(start > seedPair[0]): rest = (seedPair[0], start - seedPair[0])
-    elif(end < seedPair[1]): rest = (end + 1, seedPair[1] - end)
-    else: rest = []
+    rest = []
+    if(start > seedPair[0]): rest.append((seedPair[0], start - seedPair[0]))
+    if(end < seedPair[0] + seedPair[1] - 1): rest.append((end + 1, seedPair[0] + seedPair[1] - end - 1))
     return result, rest
+
+
+
+
 
 seeds = [int(i) for i in lines[0].split(":")[1].split()]
 seedPairs = []
@@ -54,13 +58,13 @@ while(lineIdx < len(lines)):
 
 
 locations = []
-ranges = []
 
 for seedPair in seedPairs:
     nextRanges = [seedPair]
     for i in range(7):
         seedLists = [i for i in nextRanges]
         nextRanges = []
+
         while(len(seedLists) > 0):
             currList = mappings[i]
             currMapping = seedLists.pop(0)
@@ -71,15 +75,13 @@ for seedPair in seedPairs:
                 if(result != []): 
                     found = True
                     nextRanges.append(result)
-                    if(rest != []): seedLists.append(rest)
+                    if(rest != []): 
+                        [seedLists.append(i) for i in rest]
                     break
             if(not found):
                 nextRanges.append(currMapping)
-                break
-    [ranges.append(i) for i in nextRanges]
     [locations.append(i[0]) for i in nextRanges]
 
-print(ranges)
 print(min(locations))
     
 
