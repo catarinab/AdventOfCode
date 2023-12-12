@@ -19,31 +19,27 @@ class Hand:
         self.freq = []
         self.jokerFreq = 0
     
-    def __str__(self):
-        return "Bid: " + str(self.bid) + ", cards:" + str(self.cards) + ", type:" + str(self.type) + ", frequencies:" + str(self.freq)
-    
     def __lt__(self, other):
-        if(self.type == other.type):
-            for idx in range(5):
-                if(self.cards[idx] != other.cards[idx]):
-                    return cardValues[self.cards[idx]] < cardValues[other.cards[idx]]
-            return False
-        else:
+        if(self.type != other.type):
             return self.type > other.type
+
+
+        for idx in range(len(self.cards)):
+            if(self.cards[idx] != other.cards[idx]):
+                return cardValues[self.cards[idx]] < cardValues[other.cards[idx]]
+            
+        return False
     
     def checkFrequency(self):
         freqs = {}
-        jokerFreq = 0
         for card in self.cards:
             if(card == "J"):
-                jokerFreq += 1
-                continue
-            if(card not in freqs):
+                self.jokerFreq  += 1
+            elif(card not in freqs):
                 freqs[card] = 1
             else:
                 freqs[card] += 1
         self.freq = sorted(freqs.items(), key=lambda x:x[1], reverse=True)
-        self.jokerFreq = jokerFreq
     
 
     def checkType(self):
@@ -126,8 +122,7 @@ class Hand:
         if(self.freq[0][1] == 2 or self.freq[0][1] + self.jokerFreq == 2):
             self.type = 5
             return True
-        else:
-            return False
+        return False
 
 
 
