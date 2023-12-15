@@ -43,8 +43,5 @@ for location in beginnings:
         steps += 1
     stepVals.append(steps)
 
-for i in range(len(stepVals)):
-    print(stepVals[i])
-
 #uh...
 print(lcm(stepVals[0], stepVals[1], stepVals[2], stepVals[3], stepVals[4], stepVals[5]))
