@@ -30,6 +30,7 @@ for line in tiles:
             coords = (tiles.index(line), line.index(char))
             start = Pipe(char, coords, None)
             loop.append(start)
+            break
             
 
 #depth first search?
@@ -46,7 +47,9 @@ for start in adjs:
     steps = 0
     currTile = start
     found = False
+    loop = []
     while(currTile.val!= "."):
+        loop.append(currTile.coords)
         if(currTile.val == "S"):
             found = True
             break
@@ -59,7 +62,25 @@ for start in adjs:
         possibleDir = [i for i in possibleDirs[currTile.val]]
         possibleDir.remove(prevDir)
         coords = (currTile.coords[0] + possibleDir[0][0], currTile.coords[1] + possibleDir[0][1])
-        currTile = Pipe(tiles[coords[0]][coords[1]], coords, possibleDir[0])
+        currTile = Pipe(tiles[coords[0]][coords[1]], coords, possibleDir[0]) 
     if found:
+        #part 1
         print(round(steps/2))
+        steps += 1   
+        loop.insert(0, loop[-1])
         break
+
+#shoelace formula
+area = 0
+
+for i in range(len(loop) - 1):
+    area += loop[i][1] * (loop[i-1][0] - loop[i+1][0])
+
+area += loop[-1][1] * (loop[-2][0] - loop[0][0])
+area /= 2
+
+if area < 0: area *= -1 
+
+#Pick's theorem, i = A - b/2 + 1
+
+print(area - steps/2 + 1)
