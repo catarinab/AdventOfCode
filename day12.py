@@ -1,4 +1,4 @@
-from itertools import product
+from functools import lru_cache 
 
 class Row:
     def __init__(self, springs, cont):
@@ -9,59 +9,32 @@ class Row:
         return self.springs + " -> " + str(self.cont) 
     
 
-def changeString(s, i, c):
-    return s[:i] + c + s[i+1:]
-
-def checkRow(spring, cont, matches = 0, order = []):
-
-    #print("processing: " + spring + " with " + str(cont))
-
-    if(len(spring) == 0):
-        if(len(cont) == 0):
-            #print("MATCHHH")
-            #print(order)
-            return matches + 1
-        else:
-            return matches
-
-
-   
+@lru_cache
+def checkRow(spring, cont):
+    if(len(spring) == 0): return len(cont) == 0
     
     if(spring[0] == '.'):
-        #print("string: " + spring+ "generated " + spring[1:], " currOrder: " + str(order))
-        matches = checkRow(spring[1:], cont, matches)
+        return checkRow(spring[1:], cont)
     elif(spring[0] == '?'):
-        #print("string: " + spring+ "generated "+ '#' + spring[1:] + "and "+ '.' + spring[1:], " currOrder: " + str(order))
-        matches = checkRow('#' + spring[1:], cont, matches, order)
-        matches = checkRow('.' + spring[1:], cont, matches, order)
+        return checkRow('#' + spring[1:], cont) + checkRow(spring[1:], cont)
     elif(spring[0] == '#'):
-        if(len(cont) == 0): return matches
-
+        if(len(cont) == 0): return 0
 
         ast = 0
-        while(ast < len(spring) and (spring[ast] == '#' or spring[ast] == '?')):
-            ast += 1    
+        while(ast < len(spring) and spring[ast] != '.'): ast += 1    
+        nextTry = int(cont.strip().split(',')[0])
         
-        nextTry = cont[0]
-        #print("trying: " + str(nextTry))
-        tempCont = [k for k in cont]
         if nextTry <= ast:
-            tempCont.remove(nextTry)
-            #print("string: " + spring+ " generated:")
+            size = 2 if nextTry < 10 else 3
+            cont = cont[size:]
             if(nextTry < len(spring) and spring[nextTry] != '#'):
-                spring = '.'+spring[nextTry+1:]
+                return checkRow(spring[nextTry+1:], cont)
             elif(nextTry == len(spring)):
-                spring = ''
+                return checkRow('', cont)
             else:
-                return matches
-                #print("nao da")
-                #print(nextTry, len(spring), spring)
-            #print(spring)
-            order.append(nextTry)
-            matches = checkRow(spring, tempCont, matches)
-            order.pop()
-
-    return matches
+                return 0
+        else:
+            return 0
 
 
 
@@ -70,16 +43,20 @@ f = open("/home/cat/uni/aoc23/inputs/day12.txt", "r")
 lines = f.readlines()
 f.close()
 
-#lines = [lines[1]]
+
 res = 0
+
 for line in lines:
+    cache = {}
     line = line.split(" ")
     cont = line[1].strip().split(',')
-    cont = [int(i) for i in cont]
-    row = Row(line[0], cont)
-    print(row)
-    currRes = checkRow(row.springs, row.cont)
-    print(currRes)
-    res += currRes
-
+    initialCont = ','.join(cont)
+    initialSpring = line[0]
+    spring = initialSpring
+    cont = initialCont
+    for i in range(4):
+        spring = spring + '?' + initialSpring
+        cont = cont + ',' + initialCont
+    row = Row(spring, cont)
+    res += checkRow(row.springs, row.cont)
 print(res)
