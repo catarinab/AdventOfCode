@@ -4,24 +4,35 @@ class Mapping():
         self.cols = []
         for _ in range(colsLength):
             self.cols.append("")
+
+def stringDiff(str1, str2):
+    diff = 0
+    for idx in range(len(str1)):
+        if(str1[idx] != str2[idx]):
+            diff += 1
+    return diff
     
 def processPatternLines(idx, pattern):
     idx1 = idx - 1
     idx2 = idx
+    diffs = -1
     while(idx1 > -1 and idx2 < len(pattern.lines) ):
-        if(pattern.lines[idx1] != pattern.lines[idx2]):
+        diffs += stringDiff(pattern.lines[idx1], pattern.lines[idx2])
+        if(diffs > 1):
             return False
         idx1 -= 1; idx2 += 1
-    return True
+    return diffs == 0
 
 def processPatternColumns(idx, pattern):
     idx1 = idx - 1
     idx2 = idx
+    diffs = -1
     while(idx1 > -1 and idx2 < len(pattern.cols)):
-        if(pattern.cols[idx1] != pattern.cols[idx2]):
+        diffs += stringDiff(pattern.cols[idx1], pattern.cols[idx2])
+        if(diffs > 0):
             return False
         idx1 -= 1; idx2 += 1
-    return True
+    return diffs == 0
 
 def processPattern(pattern):
     for idx in range(1, len(pattern.lines)):
@@ -53,7 +64,6 @@ for idx in range(len(lines)):
         mapping = Mapping(len(lines[(idx+1)%len(lines)])-1)
 
 sum = 0
-lineIdx = -1
 for pattern in maps:
     sum += processPattern(pattern)
 print(sum)
