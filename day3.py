@@ -7,6 +7,7 @@ result = 0
 
 input_file = open("input/day3.txt", "r")
 inputStrings = input_file.readlines()
+input_file.close()
 
 for inputString in inputStrings:
     matches = re.finditer(pattern, inputString)

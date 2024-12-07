@@ -67,6 +67,7 @@ def part2(inputStrings):
 def main():
     input_file = open("input/day4.txt", "r")
     inputStrings = input_file.readlines()
+    input_file.close()
     print("part1: ", part1(inputStrings))
     print("part2: ", part2(inputStrings))
 
