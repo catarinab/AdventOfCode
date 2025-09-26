@@ -15,30 +15,34 @@ def getNewDirection(currentDirection):
         return down
     elif currentDirection == down:
         return left
-    elif currentDirection == left:
-        return up
+    return up
+    
+    
+def validPosition(position, matrixSize):
+    return position[0] >= 0 and position[0] < matrixSize and position[1] >= 0 and position[1] < matrixSize
        
 
-def part1(matrix, currentPosition):
-    currDirection = up
+def part1(matrix, currentPosition, direction = up, targetPosition=False):
     visitedPositions = []
-    while (currentPosition[0] >= 0 and currentPosition[0] < len(matrix) 
-           and currentPosition[1] >= 0 and currentPosition[1] < len(matrix[0])):
+    while (currentPosition[0] >= 0 and currentPosition[0] < len(matrix) and currentPosition[1] >= 0 and currentPosition[1] < len(matrix[0])):
+        if currentPosition == targetPosition and visitedPositions != []:
+            return -1
 
         if matrix[currentPosition[0]][currentPosition[1]] == '#':
-            currentPosition = (currentPosition[0] - currDirection[0], currentPosition[1] - currDirection[1])
-            currDirection = getNewDirection(currDirection)
+            currentPosition = (currentPosition[0] - direction[0], currentPosition[1] - direction[1])
+            direction = getNewDirection(direction)
         elif currentPosition not in visitedPositions:
             visitedPositions.append(currentPosition)
-        currentPosition = (currentPosition[0] + currDirection[0], currentPosition[1] + currDirection[1])
+        currentPosition = (currentPosition[0] + direction[0], currentPosition[1] + direction[1])
+               
     return len(visitedPositions)
     
 def part2(matrix, currentPosition):
     currDirection = up
     visitedPositions = []
     visitedBlocks = []
-    while (currentPosition[0] >= 0 and currentPosition[0] < len(matrix) 
-           and currentPosition[1] >= 0 and currentPosition[1] < len(matrix[0])):
+    matrixSize = len(matrix)
+    while (validPosition(currentPosition, matrixSize)):
 
         if matrix[currentPosition[0]][currentPosition[1]] == '#':
             currentPosition = (currentPosition[0] - currDirection[0], currentPosition[1] - currDirection[1])
@@ -47,18 +51,16 @@ def part2(matrix, currentPosition):
             visitedPositions.append(currentPosition)
         currentPosition = (currentPosition[0] + currDirection[0], currentPosition[1] + currDirection[1])
         newDirection = getNewDirection(currDirection)
-        print(currentPosition, newDirection)
-        newPosition = (currentPosition[0] + newDirection[0], currentPosition[1] + newDirection[1])
-        if(newPosition in visitedPositions):
-            print(newPosition)
-            block = (currentPosition[0] + currDirection[0], currentPosition[1] + currDirection[1])
-            if block not in visitedBlocks:
+        block = (currentPosition[0] + currDirection[0], currentPosition[1] + currDirection[1])
+        if  (validPosition(block, matrixSize)) and (matrix[block[0]][block[1]] != '#') and (block not in visitedBlocks) and validPosition(currentPosition, matrixSize) and (matrix[currentPosition[0]][currentPosition[1]] != '#'):
+            matrix[block[0]][block[1]] = '#'
+            if part1(matrix, currentPosition, newDirection, currentPosition) == -1:
                 visitedBlocks.append(block)
-                print(visitedBlocks)
-    return len(visitedPositions)
+            matrix[block[0]][block[1]] = '.'
+    return len(visitedBlocks)
 
 def main():
-    input_file = open("input/example.txt", "r")
+    input_file = open("input/input.txt", "r")
     inputStrings = input_file.readlines()
     input_file.close()
     matrix = []
@@ -67,7 +69,7 @@ def main():
         matrix.append(line)
         if '^' in line:
             startingPoint = (matrix.index(line), line.index('^'))
-    #print(part1(matrix, startingPoint))
+    print(part1(matrix, startingPoint))
     print(part2(matrix, startingPoint))
     
 
