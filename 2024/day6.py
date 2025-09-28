@@ -6,6 +6,11 @@ left = (0, -1)
 
 directions = [up, right, down, left]
 
+def getRelevantCoordinate(direction):
+    if(direction == up or direction == down):
+        return 0
+    return 1
+
 
 #always turn right
 def getNewDirection(currentDirection):
@@ -42,6 +47,7 @@ def part2(matrix, currentPosition):
     visitedPositions = []
     visitedBlocks = []
     matrixSize = len(matrix)
+    search = False
     while (validPosition(currentPosition, matrixSize)):
 
         if matrix[currentPosition[0]][currentPosition[1]] == '#':
@@ -52,11 +58,18 @@ def part2(matrix, currentPosition):
         currentPosition = (currentPosition[0] + currDirection[0], currentPosition[1] + currDirection[1])
         newDirection = getNewDirection(currDirection)
         block = (currentPosition[0] + currDirection[0], currentPosition[1] + currDirection[1])
-        if  (validPosition(block, matrixSize)) and (matrix[block[0]][block[1]] != '#') and (block not in visitedBlocks) and validPosition(currentPosition, matrixSize) and (matrix[currentPosition[0]][currentPosition[1]] != '#'):
-            matrix[block[0]][block[1]] = '#'
-            if part1(matrix, currentPosition, newDirection, currentPosition) == -1:
-                visitedBlocks.append(block)
-            matrix[block[0]][block[1]] = '.'
+        relevantCoordinate = getRelevantCoordinate(newDirection)
+        for positions in visitedPositions:
+            if positions[relevantCoordinate] != block[relevantCoordinate]:
+                search = True
+                break
+        if search:
+            search = False
+            if  (validPosition(block, matrixSize)) and (matrix[block[0]][block[1]] != '#') and (block not in visitedBlocks) and (block not in visitedPositions) and validPosition(currentPosition, matrixSize) and (matrix[currentPosition[0]][currentPosition[1]] != '#'):
+                matrix[block[0]][block[1]] = '#'
+                if part1(matrix, currentPosition, newDirection, currentPosition) == -1:
+                    visitedBlocks.append(block)
+                matrix[block[0]][block[1]] = '.'
     return len(visitedBlocks)
 
 def main():
