@@ -10,18 +10,13 @@ visitedPositions = []
 
 directions = [up, right, down, left]
 
-def getRelevantCoordinate(direction):
-    if(direction == up or direction == down):
-        return 0
-    return 1
-
 #always turn right
-def getNewDirection(currentDirection):
-    if currentDirection == up:
+def getNewDirection(direction):
+    if direction == up:
         return right
-    elif currentDirection == right:
+    elif direction == right:
         return down
-    elif currentDirection == down:
+    elif direction == down:
         return left
     return up
     
@@ -30,43 +25,44 @@ def validPosition(position, matrixSize):
     return position[0] >= 0 and position[0] < matrixSize and position[1] >= 0 and position[1] < matrixSize
        
 
-def part1(currentPosition, direction = up):
+def part1(position, direction = up):
     matrixSize = len(matrix)
-    while (validPosition(currentPosition, matrixSize)):  
-        currentPosition = (currentPosition[0] + direction[0], currentPosition[1] + direction[1])
-        if not validPosition(currentPosition, matrixSize):
-            break
-        if matrix[currentPosition[0]][currentPosition[1]] == '#':
-            currentPosition = (currentPosition[0] - direction[0], currentPosition[1] - direction[1])
+    while (validPosition(position, matrixSize)):  
+        if matrix[position[0]][position[1]] == '#':
+            position = (position[0] - direction[0], position[1] - direction[1])
             direction = getNewDirection(direction)
-        else:
-            if currentPosition not in visitedPositions:
-                visitedPositions.append(currentPosition)
-            if(currentPosition not in visitedDirections):
-                visitedDirections[currentPosition] = direction      
-    print(visitedPositions)
+            continue
+        if position not in visitedPositions:
+            visitedPositions.append(position)
+        if(position not in visitedDirections):
+            visitedDirections[position] = direction 
+        position = (position[0] + direction[0], position[1] + direction[1])
     return len(visitedPositions)
     
     
 
-def findLoop(currentPosition, direction, targetPosition):
+def findLoop(position, direction, targetPosition):
     matrixSize = len(matrix)
-    while (currentPosition[0] >= 0 and currentPosition[0] < matrixSize and currentPosition[1] >= 0 and currentPosition[1] < matrixSize):
-        if matrix[currentPosition[0]][currentPosition[1]] == '#':
-            currentPosition = (currentPosition[0] - direction[0], currentPosition[1] - direction[1])
+    directions = dict()
+    while (validPosition(position, matrixSize)):
+        if matrix[position[0]][position[1]] == '#':
+            position = (position[0] - direction[0], position[1] - direction[1])
             direction = getNewDirection(direction)
-        currentPosition = (currentPosition[0] + direction[0], currentPosition[1] + direction[1])
-        if currentPosition == targetPosition:
+            continue
+        if position in directions and direction in directions[position]:
             return True
+        if(position not in directions):
+            directions[position] = [direction]
+        else:
+            directions[position].append(direction)
+        position = (position[0] + direction[0], position[1] + direction[1])
+
     return False
 
 def part2(startingPoint):
-    currDirection = up
     visitedBlocks = []
     search = False
     matrixSize = len(matrix)
-    
-    print(visitedDirections)
     
     for block in visitedDirections:
         if(block == startingPoint):
@@ -74,18 +70,16 @@ def part2(startingPoint):
         direction = visitedDirections[block]
         newPosition = (block[0] - direction[0], block[1] - direction[1])
         newDirection = getNewDirection(direction)
-        print("initializing block: ", block)
+        matrix[block[0]][block[1]] = "#"
         loop = findLoop(newPosition, newDirection, newPosition)
-        print("finished block: ", block)
+        matrix[block[0]][block[1]] = "."
         if(loop):
             visitedBlocks.append(block)
-        
-    print(visitedBlocks)
     return len(visitedBlocks)
       
 
 def main():
-    input_file = open("input/sexample.txt", "r")
+    input_file = open("input/input.txt", "r")
     inputStrings = input_file.readlines()
     input_file.close()
     for string in inputStrings:
